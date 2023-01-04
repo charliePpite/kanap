@@ -30,8 +30,8 @@ fetch("http://localhost:3000/api/products")
             //modification DOM avec value récupérées de l'API
             productImage.src = `${product.imageUrl}`;
             productImage.alt = `${product.altTxt}`;
-            productTitle.innerText = `${product.name}`;
-            productDescription.innerText = `${product.description}`;
+            productTitle.textContent = `${product.name}`;
+            productDescription.textContent = `${product.description}`;
 
             //lien entre produit page d'accueil et sa page produit avec URL searchParams
             productAnchor.href = `product.html?id=${product._id}`;
