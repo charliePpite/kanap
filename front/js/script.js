@@ -1,8 +1,8 @@
 fetch("http://localhost:3000/api/products")
     .then((response) => response.json())
-    .then((value) => productData(value))
+    .then((value) => itemsData(value))
 
-function productData(value) {
+function itemsData(value) {
 
     value.forEach(product => {
         const imageUrl = product.imageUrl;
