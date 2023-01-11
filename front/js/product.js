@@ -1,7 +1,7 @@
 const urlID = window.location.search;
 const urlSearchParams = new URLSearchParams(urlID);
 const productId = urlSearchParams.get('id');
-console.log(productId);
+//console.log(productId);
 
 //récupération data API pour affichage infos produit
 fetch(`http://localhost:3000/api/products/${productId}`)
@@ -59,3 +59,56 @@ function createColors(colors) {
 }
 
 // ajouter le produit (id, quantité, couleur) au localStorage
+
+//je selectionne et je stocke les éléments nécessaires
+const button = document.querySelector('#addToCart');
+const colorChoosen = document.querySelector('option');
+const quantityChoosen = document.querySelector('#quantity');
+
+button.addEventListener('click', function(e) {
+    //empeche rafraichissement page
+    e.preventDefault();
+    //console.log('button appuyé')
+
+    if (colors.value != "" && quantityChoosen.value >= 1) {
+
+        //je stocke les valeurs sélectionnées par user dans une variable produit
+        const produit = {
+            id: productId,
+            color: colors.value,
+            quantity: Number(quantityChoosen.value)
+        };
+        console.log(produit, 'produit');
+
+        function saveBasket(basket) {
+            localStorage.setItem('basket', JSON.stringify(basket)); // clé - valeur
+        }
+
+        function getBasket() {
+            let basket = localStorage.getItem('basket');
+            if (basket == null) {        // le panier n'existe pas encore
+                return [];              // création d'un tableau vide à savoir un panier
+            } else {
+                return JSON.parse(basket);
+            }
+        }
+
+        function addBasket(product) {
+            let basket = getBasket();
+            let foundProduct = basket.find(p => p.id == product.id) && basket.find(p => p.color == product.color);// savoir si le produit est déjà dans le panier
+            if (foundProduct != undefined) { // valeur que retroune .find
+                foundProduct.quantity += product.quantity;
+            } else {
+                product.quantity = product.quantity;
+                basket.push(product);
+            }  
+            saveBasket(basket);
+        }
+        
+        addBasket(produit);
+
+    } else {
+        alert("Veuillez saisir une couleur et une quantité valide");
+    }
+    
+})
