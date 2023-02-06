@@ -1,6 +1,8 @@
 const itemsList = JSON.parse(localStorage.getItem('basket'));
 //console.log(itemsList);
 
+let totalPrice = 0;
+
 //boucler sur chaque item présent dans le tableau récupéré du LocalStorage
 itemsList.forEach((item) => {
     let id = item.id;
@@ -8,6 +10,7 @@ itemsList.forEach((item) => {
     let quantity = item.quantity;
     //console.log(id, color, quantity);
     displayItem(id, color, quantity);
+    totalQuantityItems()
 
     async function displayItem(id, color, quantity) {
         try {
@@ -130,6 +133,8 @@ itemsList.forEach((item) => {
                 settingsDelete.appendChild(deleteParagraph);
                 settings.appendChild(settingsDelete);
             }
+
+            totalPriceItems(value, item)
         }
         catch(error) {
             console.log(error, 'erreur');
@@ -138,6 +143,27 @@ itemsList.forEach((item) => {
      
 });
 
+////////////////// calcul prix total ///////////////////////////
+
+function totalPriceItems(value, item) {
+    totalPrice += item.quantity * value.price;
+    const totalPriceItems = document.querySelector('#totalPrice');
+    totalPriceItems.innerText = totalPrice;
+    return totalPrice;
+}
+
+////////////////// calcul total produits ///////////////////////////
+
+function totalQuantityItems(){
+    let basket = itemsList;
+    let total = 0;
+    for (let item of basket) {
+        total += item.quantity
+    }
+
+    const totalQuantityItems = document.querySelector('#totalQuantity');
+    totalQuantityItems.innerText = total;
+}
 
 
 

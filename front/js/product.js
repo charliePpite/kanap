@@ -1,14 +1,23 @@
 const urlID = window.location.search;
 const urlSearchParams = new URLSearchParams(urlID);
 const productId = urlSearchParams.get('id');
-//console.log(productId);
 
 //récupération data API pour affichage infos produit
-fetch(`http://localhost:3000/api/products/${productId}`)
-    .then(response => response.json())
-    .then(value => itemsData(value))
+async function displayProduct() {
+    try {
+        const reponseJSON = await fetch(`http://localhost:3000/api/products/${productId}`);
+        const reponseJs = await reponseJSON.json();
+        itemData(reponseJs);
+    }
+    catch(error) {
+        console.log(error, 'erreur');
+    }
+};
 
-function itemsData(product) {
+displayProduct();
+
+//assignation data de l'API aux éléments du DOM
+function itemData(product) {
 
     const imageUrl = product.imageUrl;
     const altTxt = product.altTxt;
@@ -17,14 +26,14 @@ function itemsData(product) {
     const description = product.description;
     const colors = product.colors;
 
-    createImage(imageUrl, altTxt); // procédure
+    createImage(imageUrl, altTxt);
     createTitle(name);
     createPrice(price);
     createDescription(description);
     createColors(colors);
-
 }
 
+//fonctions (create...) de création des composants du DOM
 function createImage(imageUrl, altTxt) {
     const productImage = document.createElement('img');
     productImage.src = imageUrl;
@@ -35,27 +44,27 @@ function createImage(imageUrl, altTxt) {
 
 function createTitle(name) {
     const productTitle = document.querySelector('#title');
-    productTitle.textContent = name;
+    productTitle.innerText = name;
 }
 
 function createPrice(price) {
     const productPrice = document.querySelector('#price');
-    productPrice.textContent = price;
+    productPrice.innerText = price;
 }
 
 function createDescription(description) {
     const productDescription = document.querySelector('#description');
-    productDescription.textContent = description;
+    productDescription.innerText = description;
 }
 
 function createColors(colors) {
     const colorsContainer = document.querySelector('#colors');
-    colors.forEach((color) => {
+    for (color of colors) {
         const productColors = document.createElement('option');
         productColors.value = color;
-        productColors.textContent = color;
+        productColors.innerText = color;
         colorsContainer.appendChild(productColors);
-    });
+    };
 }
 
 // ajouter le produit (id, quantité, couleur) au localStorage
@@ -65,50 +74,50 @@ const button = document.querySelector('#addToCart');
 const colorChoosen = document.querySelector('option');
 const quantityChoosen = document.querySelector('#quantity');
 
+//au clic sur le bouton 'ajouter au panier' j'ajoute les infos renseignées dans le localStorage
 button.addEventListener('click', function(e) {
     //empeche rafraichissement page
     e.preventDefault();
-    //console.log('button appuyé')
 
+    //si une couleur et une quantité sont renseignéés je stocke dans localStorage les infos
     if (colors.value != "" && quantityChoosen.value >= 1) {
-
-        //je stocke les valeurs sélectionnées par user dans une variable produit
         const produit = {
             id: productId,
             color: colors.value,
             quantity: Number(quantityChoosen.value)
         };
-        console.log(produit, 'produit');
 
-        function saveBasket(basket) {
-            localStorage.setItem('basket', JSON.stringify(basket)); // clé - valeur
-        }
-
-        function getBasket() {
-            let basket = localStorage.getItem('basket');
-            if (basket == null) {        // le panier n'existe pas encore
-                return [];              // création d'un tableau vide à savoir un panier
-            } else {
-                return JSON.parse(basket);
-            }
-        }
-
-        function addBasket(product) {
-            let basket = getBasket();
-            let foundProduct = basket.find(p => p.id == product.id) && basket.find(p => p.color == product.color);// savoir si le produit est déjà dans le panier
-            if (foundProduct != undefined) { // valeur que retroune .find
-                foundProduct.quantity += product.quantity;
-            } else {
-                product.quantity = product.quantity;
-                basket.push(product);
-            }  
-            saveBasket(basket);
-        }
-        
         addBasket(produit);
 
     } else {
         alert("Veuillez saisir une couleur et une quantité valide");
     }
-    
 })
+
+//méthode ajoutant les infos au localStorage sous forme clé ('basket') et valeur (id, couleur sélect et quantité sélec)
+function saveBasket(basket) {
+    localStorage.setItem('basket', JSON.stringify(basket)); 
+}
+
+//méthode récupérant les infos du localStorage
+function getBasket() {
+    let basket = localStorage.getItem('basket');
+    if (basket == null) {     // le panier n'existe pas encore
+        return [];            // création d'un tableau vide à savoir un panier
+    } else {
+        return JSON.parse(basket);
+    }
+}
+
+// méthode appelant le localStorage, si celui-ci contient déjà l'article ainsi que la même couleur, alors ajouter seulement la quantité sélectionnée
+function addBasket(product) {
+    let basket = getBasket();
+    let foundProduct = basket.find(p => p.id == product.id) && basket.find(p => p.color == product.color);// savoir si le produit est déjà dans le panier
+    if (foundProduct != undefined) { // valeur que retroune .find
+        foundProduct.quantity += product.quantity;
+    } else {
+        product.quantity = product.quantity;
+        basket.push(product);
+    }  
+    saveBasket(basket);
+}
